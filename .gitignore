@@ -1,0 +1,145 @@
+# =====================================
+# 🌍 PaleoGeoAnthropology / PaleoLocal
+# FastAPI backend + React (frontend)
+# =====================================
+
+# --- Python / FastAPI ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+pip-wheel-metadata/
+*.sqlite3
+*.db
+*.log
+.DS_Store
+
+# Virtual environment folders
+.env/
+.venv/
+env/
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing / coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
+pytest_cache/
+.pytest_cache/
+*.cover
+coverage.xml
+
+# Local FastAPI run artifacts
+*.pid
+*.log
+*.bak
+
+# --- Node / React / Next.js frontend ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+# optional: keep or remove package-lock.json if you prefer consistent builds
+
+# --- OS & Editor files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+*.iml
+
+# --- Temporary / cache ---
+tmp/
+temp/
+.cache/
+__cache__/
+logs/
+*.bak
+*.tmp
+
+# --- Data files ---
+data/*.zip
+data/*.tar
+data/*.tar.gz
+data/*.hdf5
+data/*.h5
+data/*.pkl
+data/*.pickle
+data/*.jsonl
+data/*.npz
+data/*.npy
+data/cache/
+data/embeddings/
+# keep small seed CSVs; ignore big local datasets
+!data/seed_places.csv
+
+# --- Environment / secrets ---
+.env
+.env.*
+credentials.json
+secrets.json
+apikeys.json
+service_account.json
+*.pem
+*.key
+*.crt
+
+# --- Build outputs / deployment ---
+__build__/
+build/
+dist/
+*.spec
+*.manifest
+.DS_Store
+
+# --- Logs ---
+logs/
+*.log
+nohup.out
+
+# --- Misc ---
+# VS Code local history
+.history/
+# Python notebooks checkpoints
+.ipynb_checkpoints/
+# Mac system files
+.DS_Store
+
+# --- Docker ---
+docker-compose.override.yml
+*.pid
+*.log
+
+# --- Optional: if using Chroma or FAISS locally ---
+chroma_db/
+vector_store/
+index_store/

@@ -1,0 +1,22 @@
+fastapi>=0.95.0
+uvicorn[standard]>=0.20.0
+pydantic>=1.10.0
+
+# optional / recommended for scraping & parsing seed_url
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+
+# Gemini / Google generative AI SDK (optional - only if you will call Gemini)
+google-generativeai>=0.2.0
+
+# dev / testing
+pytest>=7.0.0
+
+# (optional) for robust retry/backoff on HTTP / LLM calls
+tenacity>=8.2.0
+
+# for ingestion + local embeddings + chroma
+chromadb>=0.4.0
+sentence-transformers>=2.2.2
+tqdm
+langchain>=0.1.0   # optional, if you want helpers later
