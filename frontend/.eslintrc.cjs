@@ -1,0 +1,15 @@
+module.exports = {
+  root: true,
+  env: { 
+    browser: true, 
+    es2020: true,
+    node: true 
+  },
+  extends: [
+    'eslint:recommended',
+  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'node_modules', '*.d.ts'],
+  rules: {
+    'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+  },
+}

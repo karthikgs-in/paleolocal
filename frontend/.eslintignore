@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+.vscode/
+.idea/
+*.d.ts
+public/
+*.config.js
+*.config.ts
+.eslintrc.cjs
