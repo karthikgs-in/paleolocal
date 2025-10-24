@@ -1,4 +1,5 @@
 import { Coordinates } from '../types';
+import { MOCK_COORDINATES } from '../utils/mockCoordinates';
 
 /**
  * Geolocation service options
@@ -7,6 +8,7 @@ export interface GeolocationOptions {
   enableHighAccuracy?: boolean;
   timeout?: number;
   maximumAge?: number;
+  useMockLocation?: boolean; // New option for testing
 }
 
 /**
@@ -44,6 +46,7 @@ const DEFAULT_OPTIONS: GeolocationOptions = {
   enableHighAccuracy: true,
   timeout: 10000, // 10 seconds
   maximumAge: 300000, // 5 minutes
+  useMockLocation: true, // Enable mock location by default for now
 };
 
 /**
@@ -55,12 +58,30 @@ export function isGeolocationSupported(): boolean {
 }
 
 /**
- * Get current position using browser geolocation API
+ * Get current position using browser geolocation API or mock data
  * @param options - Geolocation options
  * @returns Promise resolving to current coordinates
  */
 export function getCurrentPosition(options: GeolocationOptions = {}): Promise<GeolocationResult> {
   return new Promise((resolve, reject) => {
+    const config = { ...DEFAULT_OPTIONS, ...options };
+    
+    // Use mock location if enabled
+    if (config.useMockLocation) {
+      console.log('Using mock location (Grand Canyon - corrected coordinates):', MOCK_COORDINATES);
+      
+      // Simulate network delay to make it feel realistic
+      setTimeout(() => {
+        const result: GeolocationResult = {
+          coordinates: MOCK_COORDINATES,
+          accuracy: 10, // Mock accuracy in meters
+          timestamp: Date.now(),
+        };
+        resolve(result);
+      }, 500); // 500ms delay
+      return;
+    }
+
     if (!isGeolocationSupported()) {
       reject({
         type: GeolocationErrorType.NOT_SUPPORTED,
@@ -69,7 +90,6 @@ export function getCurrentPosition(options: GeolocationOptions = {}): Promise<Ge
       return;
     }
 
-    const config = { ...DEFAULT_OPTIONS, ...options };
     console.log('getCurrentPosition called with config:', config);
 
     navigator.geolocation.getCurrentPosition(

@@ -38,23 +38,34 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const isUserInteractionRef = useRef(false);
 
-  // Create custom icon for paleontological sites
+  // Create site icon
   const createSiteIcon = useCallback((isSelected: boolean = false) => {
     return L.divIcon({
       className: `paleo-marker ${isSelected ? 'selected' : ''}`,
       html: `<div style="
-        width: 20px;
-        height: 20px;
-        background-color: ${isSelected ? '#f39c12' : '#e74c3c'};
-        border: 2px solid white;
+        width: 50px;
+        height: 50px;
+        background-color: red;
+        border: 5px solid yellow;
         border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        transform: ${isSelected ? 'scale(1.2)' : 'scale(1.0)'};
-        transition: all 0.2s ease;
-      "></div>`,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -12],
+        box-shadow: 0 10px 20px rgba(255,0,0,0.8);
+        position: relative;
+        z-index: 9999;
+      ">
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 20px;
+          height: 20px;
+          background-color: white;
+          border-radius: 50%;
+        "></div>
+      </div>`,
+      iconSize: [60, 60],
+      iconAnchor: [30, 30],
+      popupAnchor: [0, -30],
     });
   }, []);
 
@@ -141,6 +152,9 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   useEffect(() => {
     if (!mapRef.current) return;
 
+    console.log('🗺️ MapContainer updating markers:', sites.length, 'sites');
+    console.log('Sites to render:', sites.map(s => ({ id: s.id, name: s.name, coords: s.coordinates })));
+
     const map = mapRef.current;
     const currentMarkers = markersRef.current;
 
@@ -177,6 +191,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
         // Add click handler
         marker.on('click', () => {
+          console.log('🔴 Site marker clicked:', site.name, site.id);
           onSiteClick?.(site);
         });
 

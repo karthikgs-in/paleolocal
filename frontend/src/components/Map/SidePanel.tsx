@@ -24,6 +24,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   onSiteSelect,
   onSourceClick,
 }) => {
+  console.log('📋 SidePanel render:', { isOpen, selectedSite: selectedSite?.name, searchResultsCount: searchResults.length });
+  
   const [activeTab, setActiveTab] = useState<'details' | 'search'>('details');
 
   const handleSiteSelect = useCallback((site: PaleoSite) => {

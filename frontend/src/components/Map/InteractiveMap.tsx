@@ -37,7 +37,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     error: locationError, 
     isLoading: locationLoading,
     getCurrentLocation
-  } = useGeolocation({ immediate: false }); // Disable immediate request
+  } = useGeolocation({ 
+    immediate: false, // Disable immediate request
+    useMockLocation: true // Use mock location instead of browser geolocation
+  });
 
   // Debug logging
   console.log('Geolocation state:', {
@@ -61,21 +64,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   } = useSiteData();
 
   // Determine if we should show the global map view or user location
-  const shouldUseGlobalView = !userLocation && !locationLoading;
   const currentCenter = userLocation || initialCenter || { latitude: 39.8283, longitude: -98.5795 };
 
   // Search for sites when map view changes
   const handleMapViewChange = useCallback(async (center: Coordinates, zoom: number) => {
+    console.log('handleMapViewChange called:', { center, zoom });
     setView(center, zoom);
     
     // Only search if zoom level is appropriate (not too zoomed out)
     if (zoom >= 8) {
+      console.log('Zoom level sufficient, starting search...');
       setIsSearching(true);
       setSearchError(null);
       
       try {
         // Calculate search radius based on zoom level
         const radius = Math.max(5, 50 / Math.pow(2, zoom - 8));
+        console.log('Search parameters:', { center, radius });
         
         await searchSites({
           center,
@@ -84,28 +89,41 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             accessibility: 'public' // Default to public sites only
           }
         });
+        console.log('Search completed successfully, sites found:', searchResults.length);
+        console.log('Sites:', searchResults.map(s => ({ id: s.id, name: s.name, coords: s.coordinates })));
       } catch (error) {
+        console.error('Search failed:', error);
         setSearchError(error instanceof Error ? error.message : 'Failed to search for sites');
       } finally {
         setIsSearching(false);
       }
+    } else {
+      console.log('Zoom level too low for search:', zoom);
     }
   }, [setView, searchSites]);
 
   // Handle site selection from map marker
   const handleSiteClick = useCallback(async (site: PaleoSite) => {
+    console.log('🎯 handleSiteClick called for:', site.name, site.id);
+    console.log('Current side panel state:', { sidePanelOpen, selectedSite: selectedSite?.id });
+    
     try {
       // Get detailed information for the site
+      console.log('Getting site details...');
       const detailedSite = await getSiteDetails(site.id);
+      console.log('Site details received:', detailedSite);
+      
       setSelectedSite(detailedSite || site);
       setSidePanelOpen(true);
+      console.log('✅ Side panel should now be open');
     } catch (error) {
       console.error('Failed to get site details:', error);
       // Fall back to basic site info if details fail
       setSelectedSite(site);
       setSidePanelOpen(true);
+      console.log('✅ Side panel opened with basic site info');
     }
-  }, [getSiteDetails]);
+  }, [getSiteDetails, sidePanelOpen, selectedSite]);
 
   // Handle site selection from search results
   const handleSiteSelectFromPanel = useCallback((site: PaleoSite) => {
@@ -174,7 +192,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
   // Perform initial search when component mounts and location is available
   useEffect(() => {
+    console.log('Search effect triggered:', { currentCenter, zoom: mapView.zoom, shouldSearch: mapView.zoom >= 8 });
     if (currentCenter && mapView.zoom >= 8) {
+      console.log('Triggering initial search for location:', currentCenter);
       handleMapViewChange(currentCenter, mapView.zoom);
     }
   }, [currentCenter, mapView.zoom, handleMapViewChange]);
@@ -186,15 +206,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
   }, [currentCenter, initialZoom, setView]);
 
-  // Show loading spinner while getting initial location
-  if (locationLoading && !skipLocation) {
-    console.log('Showing loading spinner');
+  // Show loading spinner only briefly while getting mock location (should be fast)
+  if (locationLoading && !skipLocation && !userLocation) {
+    console.log('Showing loading spinner for mock location');
     return (
       <div className="interactive-map-loading">
-        <LoadingSpinner size="large" message="Getting your location..." />
+        <LoadingSpinner size="large" message="Loading map..." />
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
           <p style={{ color: '#666', marginBottom: '10px', fontSize: '14px' }}>
-            {locationTimeout ? 'Taking longer than expected...' : 'Please allow location access when prompted'}
+            {locationTimeout ? 'Taking longer than expected...' : 'Initializing interactive map'}
           </p>
           <button 
             onClick={() => {
@@ -210,7 +230,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               cursor: 'pointer'
             }}
           >
-            Skip and use global view
+            Skip to global view
           </button>
         </div>
       </div>

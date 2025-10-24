@@ -66,8 +66,43 @@ export const apiService = {
    */
   async searchSites(searchRequest: SearchRequest): Promise<SearchResponse> {
     try {
-      const response = await apiClient.post<SearchResponse>('/api/search', searchRequest);
-      return response.data;
+      const params = {
+        lat: searchRequest.center.latitude,
+        lon: searchRequest.center.longitude,
+        radius_km: searchRequest.radius || 50
+      };
+      
+      // Backend response type
+      interface BackendSite {
+        id: string;
+        name: string;
+        lat: number;
+        lon: number;
+        known_type: string;
+        short_summary: string;
+      }
+      
+      const response = await apiClient.get<BackendSite[]>('/api/search', { params });
+      
+      // Transform backend response to frontend PaleoSite format
+      const sites: PaleoSite[] = response.data.map(site => ({
+        id: site.id,
+        name: site.name,
+        description: site.short_summary || site.known_type || 'No description available',
+        coordinates: {
+          latitude: site.lat,
+          longitude: site.lon
+        },
+        formation: site.known_type,
+        accessibility: 'public' as const
+      }));
+      
+      return {
+        sites,
+        total: sites.length,
+        center: searchRequest.center,
+        radius: searchRequest.radius || 50
+      };
     } catch (error) {
       throw error as ApiError;
     }

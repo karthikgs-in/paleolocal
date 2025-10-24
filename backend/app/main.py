@@ -65,7 +65,7 @@ class SearchResult(BaseModel):
     lat: float
     lon: float
     known_type: str
-    short_summary: str = None
+    short_summary: str = ""  # Default to empty string instead of None
 
 
 # ---------- Routes ----------
@@ -83,7 +83,7 @@ def search(lat: float, lon: float, radius_km: float = 50.0):
                 "lat": p['lat'],
                 "lon": p['lon'],
                 "known_type": p.get('known_type', ''),
-                "short_summary": summary,
+                "short_summary": summary or "",  # Ensure empty string if None
             })
     return results
 

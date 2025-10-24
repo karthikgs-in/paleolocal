@@ -94,8 +94,6 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
   // Get current location
   const getCurrentLocation = useCallback(async (): Promise<void> => {
     const isSupported = isGeolocationSupported();
-    console.log('getCurrentLocation called, isSupported:', isSupported);
-    
     if (!isSupported) {
       setState(prev => ({
         ...prev,
@@ -105,7 +103,6 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
     }
 
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    console.log('Starting geolocation request...');
 
     try {
       const result = await getCurrentPosition({
@@ -113,10 +110,8 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
         timeout,
         maximumAge,
       });
-      console.log('Geolocation success:', result);
       handleSuccess(result);
     } catch (error) {
-      console.log('Geolocation error:', error);
       handleError(error as GeolocationError);
     }
   }, [enableHighAccuracy, timeout, maximumAge, handleSuccess, handleError]);

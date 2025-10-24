@@ -27,20 +27,30 @@ export const SiteMarker: React.FC<SiteMarkerProps> = ({
       className: `paleo-marker ${selected ? 'selected' : ''}`,
       html: `
         <div style="
-          width: 20px;
-          height: 20px;
-          background-color: ${selected ? '#f39c12' : '#e74c3c'};
-          border: 2px solid white;
+          width: 50px;
+          height: 50px;
+          background-color: red;
+          border: 5px solid yellow;
           border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          transform: ${selected ? 'scale(1.2)' : 'scale(1.0)'};
-          transition: all 0.2s ease;
-          cursor: pointer;
-        "></div>
+          box-shadow: 0 10px 20px rgba(255,0,0,0.8);
+          position: relative;
+          z-index: 9999;
+        ">
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+          "></div>
+        </div>
       `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -12],
+      iconSize: [60, 60],
+      iconAnchor: [30, 30],
+      popupAnchor: [0, -30],
     });
   };
 

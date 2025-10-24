@@ -1,5 +1,5 @@
 id,name,lat,lon,known_type,seed_url,access_notes,notes
-1,Grand Canyon,-36.1069,-112.1129,Stratigraphic canyon,https://en.wikipedia.org/wiki/Grand_Canyon,National Park with visitor centers and trails,Excellent exposed stratigraphic sequence spanning Precambrian to Cenozoic
+1,Grand Canyon,36.1069,-112.1129,Stratigraphic canyon,https://en.wikipedia.org/wiki/Grand_Canyon,National Park with visitor centers and trails,Excellent exposed stratigraphic sequence spanning Precambrian to Cenozoic
 2,Burgess_Shale,51.4969,-116.2125,Fossil Lagerstätte,https://en.wikipedia.org/wiki/Burgess_Shale,Access via Yoho NP trails & guided outings,Exceptional Cambrian soft-bodied fossils (Walcott quarry)
 3,Ediacara_Hills,-29.2167,137.9167,Ediacaran fossil locality,https://en.wikipedia.org/wiki/Ediacaran_biota,Remote; some guided access,Important for late Precambrian multicellular life traces
 4,Chengjiang,23.5,120.25,Fossil Lagerstätte,https://en.wikipedia.org/wiki/Chengjiang,Museum at site; controlled access,Early Cambrian fossils with soft-bodied preservation
