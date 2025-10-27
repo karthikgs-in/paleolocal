@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { PaleoSite, Coordinates } from '../../types';
 import { useMapState } from '../../hooks/useMapState';
+import { useSiteData } from '../../hooks/useSiteData';
 import { MapContainerSimple as MapContainer } from './MapContainerSimple';
 import { SidePanel } from './SidePanel';
 import { DEV_CONFIG, shouldShowDebugFeatures } from '../../config/dev';
@@ -33,7 +34,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     setView
   } = useMapState();
 
-  // TEMPORARY: Use simple mock data instead of complex hooks
+  // TEMPORARY: Keep simple mock data until we debug the CSV parsing issue
   const searchResults: PaleoSite[] = [
     {
       id: 'mock-1',
@@ -54,6 +55,50 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       description: 'Rich Eocene fossil deposits'
     }
   ];
+
+  // Comment out the real hook for now to debug
+  /*
+  // Use the real site data hook with mock API backend
+  const {
+    sites: searchResults,
+    selectedSite: hookSelectedSite,
+    isLoading: sitesLoading,
+    error: sitesError,
+    searchSites,
+    getSiteDetails,
+    clearSelectedSite
+  } = useSiteData();
+
+  // Sync selected site with hook state
+  useEffect(() => {
+    if (hookSelectedSite && hookSelectedSite.id !== selectedSite?.id) {
+      setSelectedSite(hookSelectedSite);
+    }
+  }, [hookSelectedSite, selectedSite]);
+
+  // Perform initial search when component mounts or map view changes significantly
+  useEffect(() => {
+    const performSearch = async () => {
+      if (mapView.zoom >= 6) { // Only search at reasonable zoom levels
+        try {
+          await searchSites({
+            center: mapView.center,
+            radius: Math.max(50, Math.min(200, 100 * (18 - mapView.zoom))), // Dynamic radius
+            filters: {
+              accessibility: 'public'
+            }
+          });
+        } catch (error) {
+          if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+            console.error('🔍 Search failed:', error);
+          }
+        }
+      }
+    };
+
+    performSearch();
+  }, [mapView.center.latitude, mapView.center.longitude, mapView.zoom, searchSites]);
+  */
 
   // Simple map view change handler  
   const handleMapViewChange = useCallback(async (center: Coordinates, zoom: number) => {
@@ -100,7 +145,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       {/* Side panel */}
       <SidePanel
         isOpen={sidePanelOpen}
-        onClose={() => setSidePanelOpen(false)}
+        onClose={() => {
+          setSidePanelOpen(false);
+          setSelectedSite(null);
+        }}
         selectedSite={selectedSite}
         searchResults={searchResults}
         isLoading={false}

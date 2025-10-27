@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiService } from '../services/api';
+import { mockAPI } from '../services/mockAPI';
 import { PaleoSite, SearchRequest, SearchResponse, ApiError } from '../types';
 import { enhanceError, isRetryableError, getRetryDelay } from '../utils/errorHandling';
+import { DEV_CONFIG } from '../config/dev';
 
 /**
  * Site data hook state
@@ -87,50 +89,24 @@ export function useSiteData(options: UseSiteDataOptions = {}): UseSiteDataReturn
       error: null,
     }));
 
-    // TEMPORARY: Mock data for debugging marker visibility
-    const ENABLE_MOCK_DATA = true; // Set to false to use real API
-    
-    if (ENABLE_MOCK_DATA) {
-      console.log('🧪 Using mock data for marker debugging');
+    // Check if we should use mock data
+    if (DEV_CONFIG.USE_MOCK_DATA) {
+      if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+        console.log('🧪 Using mock API for site search');
+      }
       
-      // Simulate loading delay
-      setTimeout(() => {
+      try {
+        const mockSites = await mockAPI.searchAsPaleoSites(
+          searchRequest.center.latitude,
+          searchRequest.center.longitude,
+          searchRequest.radius
+        );
+        
         if (!isMountedRef.current) return;
         
-        const mockSites: PaleoSite[] = [
-          {
-            id: '1',
-            name: 'Grand Canyon Mock Site',
-            coordinates: {
-              latitude: 36.1069,
-              longitude: -112.1129
-            },
-            description: 'Mock paleontological site at Grand Canyon for testing marker visibility',
-            accessibility: 'public'
-          },
-          {
-            id: '2',
-            name: 'Nearby Mock Site',
-            coordinates: {
-              latitude: 36.1169,
-              longitude: -112.1029
-            },
-            description: 'Another mock site for testing marker rendering',
-            accessibility: 'public'
-          },
-          {
-            id: '3',
-            name: 'Third Mock Site',
-            coordinates: {
-              latitude: 36.0969,
-              longitude: -112.1229
-            },
-            description: 'Third mock site to test multiple markers',
-            accessibility: 'public'
-          }
-        ];
-        
-        console.log('🧪 Setting mock sites:', mockSites);
+        if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+          console.log('🧪 Mock API returned sites:', mockSites);
+        }
         
         setState(prev => ({
           ...prev,
@@ -141,8 +117,21 @@ export function useSiteData(options: UseSiteDataOptions = {}): UseSiteDataReturn
           lastSearchTime: Date.now(),
           error: null,
         }));
-      }, 500); // 500ms delay to simulate API call
-      
+        
+        retryCountRef.current = 0;
+      } catch (error) {
+        if (!isMountedRef.current) return;
+        
+        console.error('🧪 Mock API error:', error);
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: enhanceError(error instanceof Error ? error : new Error('Mock API failed'), {
+            operation: 'searchSites',
+            context: { searchRequest }
+          })
+        }));
+      }
       return;
     }
 
@@ -217,6 +206,43 @@ export function useSiteData(options: UseSiteDataOptions = {}): UseSiteDataReturn
       isLoadingDetails: true,
       error: null,
     }));
+
+    // Check if we should use mock data
+    if (DEV_CONFIG.USE_MOCK_DATA) {
+      try {
+        const site = await mockAPI.getPlaceAsPaleoSite(siteId);
+        
+        if (!isMountedRef.current) return null;
+
+        // Cache the result
+        siteDetailsCache.current.set(siteId, {
+          site,
+          timestamp: Date.now(),
+        });
+
+        setState(prev => ({
+          ...prev,
+          selectedSite: site,
+          isLoadingDetails: false,
+          error: null,
+        }));
+
+        return site;
+      } catch (error) {
+        if (!isMountedRef.current) return null;
+
+        console.error('🧪 Mock API getSiteDetails error:', error);
+        setState(prev => ({
+          ...prev,
+          isLoadingDetails: false,
+          error: enhanceError(error instanceof Error ? error : new Error('Mock API failed'), {
+            operation: 'getSiteDetails',
+            context: { siteId }
+          })
+        }));
+        return null;
+      }
+    }
 
     const executeGetDetails = async (attempt: number = 1): Promise<PaleoSite | null> => {
       try {
