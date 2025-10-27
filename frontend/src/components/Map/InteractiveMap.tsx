@@ -3,6 +3,7 @@ import { PaleoSite, Coordinates } from '../../types';
 import { useMapState } from '../../hooks/useMapState';
 import { MapContainerSimple as MapContainer } from './MapContainerSimple';
 import { SidePanel } from './SidePanel';
+import { DEV_CONFIG, shouldShowDebugFeatures } from '../../config/dev';
 import './InteractiveMap.css';
 
 interface InteractiveMapProps {
@@ -23,7 +24,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [sidePanelOpen, setSidePanelOpen] = useState(false);
   const [markerRecreationCount, setMarkerRecreationCount] = useState(0);
 
-  console.log('🗺️ InteractiveMap rendering');
+  if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+    console.log('🗺️ InteractiveMap rendering');
+  }
 
   const { 
     mapView, 
@@ -54,20 +57,26 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
   // Simple map view change handler  
   const handleMapViewChange = useCallback(async (center: Coordinates, zoom: number) => {
-    console.log('handleMapViewChange called:', { center, zoom });
+    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+      console.log('handleMapViewChange called:', { center, zoom });
+    }
     setView(center, zoom);
   }, [setView]);
 
   // Handle site click
   const handleSiteClick = useCallback(async (site: PaleoSite) => {
-    console.log('🔴 Site clicked:', site.name, site.id);
+    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+      console.log('🔴 Site clicked:', site.name, site.id);
+    }
     setSelectedSite(site);
     setSidePanelOpen(true);
   }, []);
 
   // Handle map click
   const handleMapClick = useCallback((coordinates: Coordinates) => {
-    console.log('🗺️ Map clicked at:', coordinates);
+    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+      console.log('🗺️ Map clicked at:', coordinates);
+    }
     setSidePanelOpen(false);
     setSelectedSite(null);
   }, []);
@@ -98,23 +107,25 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         error={null}
       />
 
-      {/* DEBUG: Show side panel state */}
-      <div style={{
-        position: 'fixed',
-        top: '10px',
-        right: '10px',
-        background: 'rgba(0,0,0,0.7)',
-        color: 'white',
-        padding: '10px',
-        borderRadius: '4px',
-        fontSize: '12px',
-        zIndex: 10000
-      }}>
-        <div>Panel Open: {sidePanelOpen ? 'YES' : 'NO'}</div>
-        <div>Selected Site: {selectedSite?.name || 'None'}</div>
-        <div>Sites Count: {searchResults.length}</div>
-        <div>Recreations: {markerRecreationCount}</div>
-      </div>
+      {/* DEBUG: Show side panel state - only in development with debug features enabled */}
+      {shouldShowDebugFeatures() && DEV_CONFIG.SHOW_DEBUG_PANELS && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          background: 'rgba(0,0,0,0.7)',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          zIndex: 10000
+        }}>
+          <div>Panel Open: {sidePanelOpen ? 'YES' : 'NO'}</div>
+          <div>Selected Site: {selectedSite?.name || 'None'}</div>
+          <div>Sites Count: {searchResults.length}</div>
+          <div>Recreations: {markerRecreationCount}</div>
+        </div>
+      )}
     </div>
   );
 };

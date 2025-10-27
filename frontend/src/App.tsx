@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { InteractiveMap } from './components/Map/InteractiveMap';
 import { TestPage } from './pages/TestPage';
+import { DEV_CONFIG, shouldShowDebugFeatures } from './config/dev';
 import './App.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'main' | 'test'>('main');
+  
+  // Check if debug features should be shown
+  const showDebugFeatures = shouldShowDebugFeatures();
 
   return (
     <div className="App">
@@ -29,19 +33,23 @@ function App() {
         >
           Main Map
         </button>
-        <button 
-          onClick={() => setCurrentPage('test')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: currentPage === 'test' ? '#007bff' : '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Marker Test
-        </button>
+        
+        {/* Only show Marker Test button if debug features are enabled */}
+        {showDebugFeatures && DEV_CONFIG.SHOW_MARKER_TEST && (
+          <button 
+            onClick={() => setCurrentPage('test')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: currentPage === 'test' ? '#007bff' : '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Marker Test
+          </button>
+        )}
       </div>
 
       {/* Page content */}
@@ -54,9 +62,12 @@ function App() {
         />
       </div>
       
-      <div style={{ display: currentPage === 'test' ? 'block' : 'none' }}>
-        <TestPage />
-      </div>
+      {/* Only render test page if debug features are enabled */}
+      {showDebugFeatures && DEV_CONFIG.SHOW_MARKER_TEST && (
+        <div style={{ display: currentPage === 'test' ? 'block' : 'none' }}>
+          <TestPage />
+        </div>
+      )}
     </div>
   );
 }
