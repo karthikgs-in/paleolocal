@@ -87,6 +87,65 @@ export function useSiteData(options: UseSiteDataOptions = {}): UseSiteDataReturn
       error: null,
     }));
 
+    // TEMPORARY: Mock data for debugging marker visibility
+    const ENABLE_MOCK_DATA = true; // Set to false to use real API
+    
+    if (ENABLE_MOCK_DATA) {
+      console.log('🧪 Using mock data for marker debugging');
+      
+      // Simulate loading delay
+      setTimeout(() => {
+        if (!isMountedRef.current) return;
+        
+        const mockSites: PaleoSite[] = [
+          {
+            id: '1',
+            name: 'Grand Canyon Mock Site',
+            coordinates: {
+              latitude: 36.1069,
+              longitude: -112.1129
+            },
+            description: 'Mock paleontological site at Grand Canyon for testing marker visibility',
+            accessibility: 'public'
+          },
+          {
+            id: '2',
+            name: 'Nearby Mock Site',
+            coordinates: {
+              latitude: 36.1169,
+              longitude: -112.1029
+            },
+            description: 'Another mock site for testing marker rendering',
+            accessibility: 'public'
+          },
+          {
+            id: '3',
+            name: 'Third Mock Site',
+            coordinates: {
+              latitude: 36.0969,
+              longitude: -112.1229
+            },
+            description: 'Third mock site to test multiple markers',
+            accessibility: 'public'
+          }
+        ];
+        
+        console.log('🧪 Setting mock sites:', mockSites);
+        
+        setState(prev => ({
+          ...prev,
+          sites: mockSites,
+          total: mockSites.length,
+          isLoading: false,
+          lastSearchParams: searchRequest,
+          lastSearchTime: Date.now(),
+          error: null,
+        }));
+      }, 500); // 500ms delay to simulate API call
+      
+      return;
+    }
+
     const executeSearch = async (attempt: number = 1): Promise<void> => {
       try {
         const response: SearchResponse = await apiService.searchSites(searchRequest);
