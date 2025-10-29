@@ -112,6 +112,14 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
         
         const marker = L.marker([site.coordinates.latitude, site.coordinates.longitude]);
         marker.bindPopup(site.name);
+        
+        // Add click handler to marker
+        marker.on('click', () => {
+          if (onSiteClick) {
+            onSiteClick(site);
+          }
+        });
+        
         marker.addTo(map);
         markersRef.current.set(site.id, marker);
       });
