@@ -1,12 +1,26 @@
-# 🏺 PaleoLocal — Paleogeology Explorer (Backend)
+# 🏺 PaleoLocal — Paleogeology Explorer
 
-**PaleoLocal** is a backend API for discovering and summarizing paleogeologic sites.  
-It combines structured geospatial data with retrieval-augmented generation (RAG) using **FastAPI**, **Chroma**, **SentenceTransformers**, and **Gemini**.
+**PaleoLocal** is a full-stack application for discovering and exploring paleogeologic sites.  
+It combines an interactive React frontend with a powerful backend API using **FastAPI**, **Chroma**, **SentenceTransformers**, and **Gemini**.
+
+## 🖼️ Application Preview
+
+![PaleoLocal Interactive Map](paleo_local.png)
+
+*The interactive map interface showing paleontological site details with an integrated side panel for site information, coordinates, and exploration tools.*
 
 ---
 
 ## ⚙️ Features
 
+### 🖥️ Frontend (React + TypeScript)
+- 🗺️ **Interactive Leaflet Map** with paleontological site markers
+- 📋 **Dynamic Side Panel** showing detailed site information and coordinates  
+- 🔍 **Tabbed Interface** for site details and search results
+- 📍 **Click-to-Explore** marker interactions with smooth animations
+- 📱 **Responsive Design** optimized for desktop and mobile exploration
+
+### 🔧 Backend API (FastAPI + AI)
 - 🌍 Search nearby paleogeologic or geoanthropological sites by latitude, longitude, and radius.  
 - 🧠 Retrieve semantically relevant text chunks from local sources using **ChromaDB**.  
 - 🔎 Embed site content locally via **SentenceTransformers**.  
@@ -19,7 +33,16 @@ It combines structured geospatial data with retrieval-augmented generation (RAG)
 
 ```
 paleolocal/
-├── backend/
+├── frontend/                # React + TypeScript Interactive Frontend
+│   ├── src/
+│   │   ├── components/      # React components (Map, SidePanel, etc.)
+│   │   ├── hooks/           # Custom React hooks (useMapState, useSiteData)
+│   │   ├── services/        # API services and mock data
+│   │   ├── types/           # TypeScript type definitions
+│   │   └── config/          # Development and debug configuration
+│   ├── package.json         # Frontend dependencies and scripts
+│   └── vite.config.ts       # Vite build configuration
+├── backend/                 # FastAPI + AI Backend
 │   ├── app/
 │   │   ├── main.py          # FastAPI entry point
 │   │   ├── rag_utils.py     # Retrieval & embedding helpers
@@ -71,7 +94,22 @@ creates local embeddings via `SentenceTransformers`, and stores them in Chroma.
 
 ---
 
-## 🚀 Run API Server
+## �️ Run Frontend (Interactive Map)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Visit:
+- http://localhost:3000 → Interactive map interface
+- Click markers to explore paleontological sites
+- Use side panel for detailed site information
+
+---
+
+## �🚀 Run API Server
 
 ```bash
 uvicorn backend.app.main:app --reload
