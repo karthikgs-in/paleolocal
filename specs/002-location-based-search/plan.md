@@ -1,0 +1,106 @@
+# Implementation Plan: Location-Based Site Discovery
+
+**Branch**: `002-location-based-search` | **Date**: 2025-10-30 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/specs/002-location-based-search/spec.md`
+
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+
+## Summary
+
+Primary requirement: Enable users to click anywhere on map to discover paleontological sites within configurable radius (25km, 50km, 100km). Technical approach: Frontend-only proof of concept using mock data and simulated distance calculations to validate user interaction patterns before backend integration.
+
+## Technical Context
+
+**Language/Version**: TypeScript/JavaScript with React 18+, Node.js 18+  
+**Primary Dependencies**: React, Vite, Leaflet, existing map infrastructure  
+**Storage**: Mock data in JavaScript/TypeScript files (proof of concept phase)  
+**Testing**: Existing frontend testing framework, manual interaction testing  
+**Target Platform**: Web browser (desktop and mobile responsive)
+**Project Type**: Web application frontend enhancement  
+**Performance Goals**: <3 seconds for site search results, <2 seconds for radius changes, <30 seconds total user task completion  
+**Constraints**: Must maintain existing side panel functionality, use mock data for POC, defer backend integration  
+**Scale/Scope**: Proof of concept with mock site data, configurable for future backend integration
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+### ✅ I. API-First Design
+- **Status**: PASS - Comprehensive interface contracts designed
+- **Implementation**: LocationSearchService interface with clear API boundaries
+- **Evidence**: contracts/api-interfaces.md defines all service interfaces and future REST endpoints
+- **Post-Phase 1**: Ready for backend API implementation with defined OpenAPI contracts
+
+### ✅ II. Research-Grade Data Integrity  
+- **Status**: PASS - Mock data maintains scientific accuracy
+- **Implementation**: PaleontologicalSite entities include proper scientific classification and significance tracking
+- **Evidence**: data-model.md defines rigorous validation rules and site metadata
+- **Future**: Backend integration will enforce full data traceability and source attribution
+
+### ✅ III. Graceful AI Integration
+- **Status**: N/A - Feature uses mathematical calculations only
+- **Implementation**: Geographic distance calculations via standard Haversine formula
+- **Future Consideration**: If AI-based site recommendations added, will implement proper fallback mechanisms
+
+**Overall Status**: ✅ PASS - All constitution principles satisfied with proper future integration planning
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/[###-feature]/
+├── plan.md              # This file (/speckit.plan command output)
+├── research.md          # Phase 0 output (/speckit.plan command)
+├── data-model.md        # Phase 1 output (/speckit.plan command)
+├── quickstart.md        # Phase 1 output (/speckit.plan command)
+├── contracts/           # Phase 1 output (/speckit.plan command)
+└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+```
+
+### Source Code (repository root)
+
+```text
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── Map/
+│   │   │   ├── MapContainerSimple.tsx          # Enhanced with click handlers
+│   │   │   ├── RadiusSelector.tsx              # NEW: Radius selection UI
+│   │   │   ├── SearchLocationMarker.tsx        # NEW: Click location marker  
+│   │   │   └── RadiusBoundary.tsx              # NEW: Circle boundary display
+│   │   └── UI/
+│   │       └── LoadingSpinner.tsx              # NEW: Search progress indicator
+│   ├── hooks/
+│   │   ├── useMapState.ts                      # Enhanced for location search
+│   │   └── useLocationSearch.ts                # NEW: Search logic hook
+│   ├── services/
+│   │   ├── mockData/
+│   │   │   ├── mockSites.ts                    # NEW: Mock paleontological sites
+│   │   │   └── geoUtils.ts                     # NEW: Distance calculation utilities
+│   │   └── locationSearchService.ts            # NEW: Search service with mock data
+│   ├── types/
+│   │   ├── map.ts                              # Enhanced with search types
+│   │   └── location.ts                         # NEW: Location search types
+│   └── config/
+│       └── searchConfig.ts                     # NEW: Search configuration constants
+└── tests/
+    ├── components/
+    │   └── Map/
+    │       ├── RadiusSelector.test.tsx
+    │       └── RadiusBoundary.test.tsx
+    └── services/
+        ├── locationSearchService.test.ts
+        └── geoUtils.test.ts
+```
+
+**Structure Decision**: Web application enhancement building on existing frontend architecture. All new components integrate with current map infrastructure while maintaining separation of concerns through dedicated hooks and services.
+
+---
+
+*Plan generated by `/speckit.plan` on 2025-10-30*
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

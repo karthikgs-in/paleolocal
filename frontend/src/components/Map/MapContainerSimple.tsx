@@ -71,6 +71,24 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
 
       mapRef.current = map;
 
+      // Add map click handler
+      if (onMapClick) {
+        map.on('click', (e: L.LeafletMouseEvent) => {
+          console.log('🗺️ Map clicked in MapContainerSimple:', e.latlng);
+          console.log('🗺️ Raw Leaflet coordinates:', e.latlng.lat, e.latlng.lng);
+          
+          const coordinates = {
+            latitude: e.latlng.lat,
+            longitude: e.latlng.lng
+          };
+          
+          onMapClick(coordinates);
+        });
+        console.log('🗺️ Map click handler attached');
+      } else {
+        console.log('🗺️ No onMapClick handler provided');
+      }
+
       console.log('🗺️ ✅ Simple map setup complete!');
 
     } catch (error) {

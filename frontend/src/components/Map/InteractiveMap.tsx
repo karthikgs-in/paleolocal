@@ -5,6 +5,8 @@ import { useSiteData } from '../../hooks/useSiteData';
 import { MapContainerSimple as MapContainer } from './MapContainerSimple';
 import { SidePanel } from './SidePanel';
 import { DEV_CONFIG, shouldShowDebugFeatures } from '../../config/dev';
+import { mockAPI } from '../../services/mockAPI';
+import { PLACES_DATA } from '../../data/seedPlaces';
 import './InteractiveMap.css';
 
 interface InteractiveMapProps {
@@ -20,10 +22,34 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   initialZoom = 6,
   showAttribution = true,
 }) => {
+  // Debug PLACES_DATA import
+  console.log('🚀 InteractiveMap component mounting');
+  console.log('🚀 PLACES_DATA available:', !!PLACES_DATA);
+  console.log('🚀 PLACES_DATA length:', PLACES_DATA?.length || 'undefined');
+  console.log('🚀 Sample PLACES_DATA:', PLACES_DATA?.slice(0, 2));
+  
   // State management
   const [selectedSite, setSelectedSite] = useState<PaleoSite | null>(null);
   const [sidePanelOpen, setSidePanelOpen] = useState(false);
   const [markerRecreationCount, setMarkerRecreationCount] = useState(0);
+  const [searchResults, setSearchResults] = useState<PaleoSite[]>([]);
+  const [allSites, setAllSites] = useState<PaleoSite[]>([]);
+
+  // Debug searchResults changes
+  useEffect(() => {
+    console.log('🔄 searchResults changed:', searchResults.length, 'sites');
+    searchResults.forEach(site => {
+      console.log('  - Site:', site.name, `(${site.coordinates.latitude}, ${site.coordinates.longitude})`);
+    });
+  }, [searchResults]);
+
+  // Debug allSites changes
+  useEffect(() => {
+    console.log('📊 allSites changed:', allSites.length, 'total sites available');
+    if (allSites.length > 0) {
+      console.log('📊 Sample sites:', allSites.slice(0, 3).map(s => s.name));
+    }
+  }, [allSites]);
 
   if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
     console.log('🗺️ InteractiveMap rendering');
@@ -34,27 +60,85 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     setView
   } = useMapState();
 
-  // TEMPORARY: Keep simple mock data until we debug the CSV parsing issue
-  const searchResults: PaleoSite[] = [
-    {
-      id: 'mock-1',
-      name: 'Grand Canyon National Park',
-      coordinates: { latitude: 36.1069, longitude: -112.1129 },
-      description: 'Famous geological formations with extensive fossil records'
-    },
-    {
-      id: 'mock-2', 
-      name: 'Petrified Forest',
-      coordinates: { latitude: 34.9094, longitude: -109.9067 },
-      description: 'Ancient petrified wood and fossil deposits'
-    },
-    {
-      id: 'mock-3',
-      name: 'Fossil Butte',
-      coordinates: { latitude: 41.8683, longitude: -110.7624 },
-      description: 'Rich Eocene fossil deposits'
+  // Load all sites on component mount
+  useEffect(() => {
+    const loadAllSites = () => {
+      console.log('🔧 loadAllSites called');
+      console.log('🔧 PLACES_DATA length:', PLACES_DATA.length);
+      console.log('🔧 First few PLACES_DATA items:', PLACES_DATA.slice(0, 3));
+      
+      // Convert all PLACES_DATA to PaleoSite format
+      const convertedSites = PLACES_DATA.map(place => ({
+        id: place.id,
+        name: place.name,
+        coordinates: { 
+          latitude: place.lat, 
+          longitude: place.lon 
+        },
+        description: place.known_type || 'Paleontological site'
+      }));
+      
+      console.log('🔧 Converted sites:', convertedSites.length);
+      console.log('🔧 First converted site:', convertedSites[0]);
+      
+      setAllSites(convertedSites);
+      
+      // Show only Grand Canyon initially (first site in PLACES_DATA)
+      const grandCanyon = convertedSites.find(site => site.name === 'Grand Canyon') || convertedSites[0];
+      console.log('🔧 Initial site (Grand Canyon):', grandCanyon);
+      
+      setSearchResults([grandCanyon]);
+      
+      if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+        console.log('🔍 Loaded sites:', convertedSites.length);
+        console.log('🏔️ Initially showing:', grandCanyon.name);
+      }
+    };
+
+    loadAllSites();
+  }, []);
+
+  // Random site selection for POC location-based search
+  const getRandomSites = useCallback((clickedLocation: Coordinates, count: number = 5): PaleoSite[] => {
+    console.log('🎲 getRandomSites called with:', { clickedLocation, count, allSitesLength: allSites.length });
+    
+    if (allSites.length === 0) {
+      console.warn('⚠️ No sites available for random selection - allSites is empty');
+      console.warn('⚠️ Trying to use PLACES_DATA directly as fallback...');
+      
+      // Fallback: use PLACES_DATA directly if allSites is empty
+      if (PLACES_DATA && PLACES_DATA.length > 0) {
+        const directSites = PLACES_DATA.map(place => ({
+          id: place.id,
+          name: place.name,
+          coordinates: { 
+            latitude: place.lat, 
+            longitude: place.lon 
+          },
+          description: place.known_type || 'Paleontological site'
+        }));
+        
+        const shuffled = [...directSites].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, Math.min(count, directSites.length));
+        
+        console.log('🎲 Using fallback - selected sites:', selected.map(s => s.name));
+        return selected;
+      }
+      
+      return [];
     }
-  ];
+    
+    const shuffled = [...allSites].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, Math.min(count, allSites.length));
+    
+    console.log('🎲 Random sites selected:', selected.map(s => ({ name: s.name, lat: s.coordinates.latitude, lng: s.coordinates.longitude })));
+    
+    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+      console.log(`🎲 Randomly selected ${selected.length} sites near:`, clickedLocation);
+    }
+    
+    return selected;
+  }, [allSites]);
 
   // Comment out the real hook for now to debug
   /*
@@ -113,18 +197,42 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
       console.log('🔴 Site clicked:', site.name, site.id);
     }
+    
+    console.log('📋 Opening side panel for site:', site.name);
     setSelectedSite(site);
     setSidePanelOpen(true);
   }, []);
 
-  // Handle map click
+  // Handle map click - POC location-based search
   const handleMapClick = useCallback((coordinates: Coordinates) => {
+    console.log('🗺️ handleMapClick called with:', coordinates);
+    
     if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
       console.log('🗺️ Map clicked at:', coordinates);
     }
-    setSidePanelOpen(false);
+    
+    // IMPORTANT: Alert lat/lng for debugging
+    alert(`Map clicked at:\nLatitude: ${coordinates.latitude}\nLongitude: ${coordinates.longitude}`);
+    
+    // POC: Randomly select a few sites and show them as markers on the map
+    const randomSites = getRandomSites(coordinates, 5);
+    console.log('🎯 Setting searchResults to:', randomSites.length, 'sites');
+    console.log('🎯 Site names:', randomSites.map(s => s.name));
+    
+    setSearchResults(randomSites);
+    
+    // Don't open side panel on map click - only show the markers
+    // Side panel opens when user clicks on a specific site marker
     setSelectedSite(null);
-  }, []);
+    setSidePanelOpen(false);
+    
+    // Always log this so user can see it's working
+    console.log('🎯 Location-based search activated! Showing site markers:', randomSites.map(s => s.name));
+    
+    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+      console.log('🎯 Location-based search: showing random sites:', randomSites.map(s => s.name));
+    }
+  }, [getRandomSites]);
 
   return (
     <div className={`interactive-map ${className}`}>

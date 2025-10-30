@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "user chooses a location on the map and we populate maps with sites which are within given distance from the point user chooses. By default the location is grandcanyon. the user can specify the radius of kms (25,50,100)km for search to locate site"
 
+## Clarifications
+
+### Session 2025-10-30
+
+- Q: How should the search radius boundary be visually displayed on the map? → A: Solid circle line around selected point
+- Q: How many site markers should be displayed when searches return many results? → A: Display all results regardless of count
+- Q: Implementation approach for initial proof of concept? → A: Use mock data to validate clickable map concept, implement backend distance logic later
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Click Map to Search Nearby Sites (Priority: P1)
@@ -67,17 +75,18 @@ A user opens the application and sees the Grand Canyon as the default location w
 ### Functional Requirements
 
 - **FR-001**: System MUST allow users to click any point on the map to initiate a site search
-- **FR-002**: System MUST display paleontological sites within the specified radius of the clicked location
+- **FR-002**: System MUST display mock paleontological sites within the specified radius of the clicked location as individual markers (using simulated distance calculation for proof of concept)
 - **FR-003**: System MUST provide radius selection options of 25km, 50km, and 100km
 - **FR-004**: System MUST default to Grand Canyon location (36.1069° N, 112.1129° W) on initial load
 - **FR-005**: System MUST default to 25km search radius when no radius is explicitly selected
 - **FR-006**: System MUST clear previous search results when a new location is selected
 - **FR-007**: System MUST display appropriate feedback when no sites are found within the specified radius
 - **FR-008**: System MUST show visual indication of the selected location on the map
-- **FR-009**: System MUST show visual indication of the current search radius boundary
+- **FR-009**: System MUST show visual indication of the current search radius boundary as a solid circle line around the selected location
 - **FR-010**: System MUST preserve the selected radius setting across multiple location searches
-- **FR-011**: System MUST display site markers with clickable functionality for detailed information
+- **FR-011**: System MUST display site markers with clickable functionality that opens the side panel with detailed site information (maintaining existing behavior)
 - **FR-012**: System MUST handle coordinate conversion between map click events and geographic coordinates
+- **FR-013**: System MUST use mock data with simulated geographic distribution to demonstrate radius-based filtering until backend integration
 
 ### Key Entities
 
@@ -85,6 +94,7 @@ A user opens the application and sees the Grand Canyon as the default location w
 - **Search Radius**: Distance parameter (25km, 50km, or 100km) for site discovery
 - **Site Results**: Collection of paleontological sites within specified radius of search location
 - **Default Location**: Pre-configured Grand Canyon coordinates for initial application state
+- **Mock Site Data**: Simulated paleontological sites with coordinates for proof-of-concept validation
 
 ## Success Criteria *(mandatory)*
 
@@ -99,9 +109,9 @@ A user opens the application and sees the Grand Canyon as the default location w
 
 ## Assumptions
 
-- Site coordinate data is available and accurate in the backend system
-- Backend API supports geographic radius-based queries
+- **Phase 1 (Proof of Concept)**: Implementation will use mock site data to validate map interaction patterns
+- **Phase 2 (Future)**: Backend integration will implement actual geographic radius-based queries
 - Map click events can be converted to precise latitude/longitude coordinates
-- Grand Canyon location contains sufficient nearby sites for meaningful demonstration
+- Grand Canyon location contains sufficient mock sites for meaningful demonstration
 - Users understand that clicking the map initiates a search (intuitive interaction pattern)
-- Network connectivity is available for API calls to retrieve site data
+- Mock data provides representative site distribution for testing user scenarios
