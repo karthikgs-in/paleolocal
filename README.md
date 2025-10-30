@@ -33,6 +33,8 @@ It combines an interactive React frontend with a powerful backend API using **Fa
 
 ```
 paleolocal/
+├── start-frontend.sh        # 🚀 Frontend startup script (recommended)
+├── paleolocal-dev           # 🎯 Quick launcher (can run from anywhere)
 ├── frontend/                # React + TypeScript Interactive Frontend
 │   ├── src/
 │   │   ├── components/      # React components (Map, SidePanel, etc.)
@@ -60,7 +62,29 @@ paleolocal/
 
 ---
 
-## 🧰 Setup
+## 🚀 Quick Start (Recommended)
+
+### Frontend Development Server
+Use the dedicated startup script to avoid directory confusion:
+
+```bash
+# From project root (recommended method)
+./start-frontend.sh
+
+# Or from anywhere in your system
+./paleolocal-dev
+```
+
+**Benefits:**
+- ✅ Automatically navigates to correct directory
+- ✅ Handles port conflicts (kills existing processes on 3002)
+- ✅ Installs dependencies if needed
+- ✅ Starts with optimized HMR configuration
+- ✅ Clear status messages and error handling
+
+---
+
+## 🧰 Manual Setup
 
 ### 1️⃣ Create environment
 ```bash

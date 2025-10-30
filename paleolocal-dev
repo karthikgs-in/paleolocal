@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Quick PaleoLocal Frontend Launcher
+# This script can be run from anywhere and will navigate to the correct project
+
+PALEOLOCAL_PROJECT="/Users/mshan/workspace/paleolocal"
+
+if [ ! -d "$PALEOLOCAL_PROJECT" ]; then
+    echo "❌ Error: PaleoLocal project not found at $PALEOLOCAL_PROJECT"
+    exit 1
+fi
+
+echo "🦕 Launching PaleoLocal Frontend..."
+exec "$PALEOLOCAL_PROJECT/start-frontend.sh"
