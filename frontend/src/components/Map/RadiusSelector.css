@@ -1,0 +1,51 @@
+.radius-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.radius-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.radius-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.radius-option {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radius-option:hover {
+  border-color: #4285f4;
+  color: #4285f4;
+}
+
+.radius-option.active {
+  background: #4285f4;
+  border-color: #4285f4;
+  color: white;
+}
+
+.radius-option:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.3);
+}

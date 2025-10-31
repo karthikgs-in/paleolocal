@@ -8,6 +8,13 @@
   background: #f8f9fa;
 }
 
+.radius-selector-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
 .interactive-map-loading {
   display: flex;
   align-items: center;

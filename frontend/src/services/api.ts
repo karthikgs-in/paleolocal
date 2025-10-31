@@ -66,11 +66,15 @@ export const apiService = {
    */
   async searchSites(searchRequest: SearchRequest): Promise<SearchResponse> {
     try {
+      console.log('🔧 api.ts searchSites called with:', searchRequest);
+      
       const params = {
         lat: searchRequest.center.latitude,
         lon: searchRequest.center.longitude,
         radius_km: searchRequest.radius || 50
       };
+      
+      console.log('🔧 api.ts final params:', params);
       
       // Backend response type
       interface BackendSite {

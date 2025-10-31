@@ -4,6 +4,7 @@ import math
 import time
 from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,13 +18,32 @@ except Exception as e:
     print("⚠️ Gemini SDK not available:", e)
 
 # ---------- Local Imports ----------
-from .rag_utils import get_top_k_chunks, build_retrieval_context
-from .prompts import PLACE_SUMMARY_PROMPT  # your external prompt file
+try:
+    from .rag_utils import get_top_k_chunks, build_retrieval_context
+    from .prompts import PLACE_SUMMARY_PROMPT  # your external prompt file
+except ImportError:
+    # Fallback for direct execution
+    from rag_utils import get_top_k_chunks, build_retrieval_context
+    from prompts import PLACE_SUMMARY_PROMPT
 
 # ---------- Constants ----------
 DATA_CSV = os.path.join(os.path.dirname(__file__), "..", "..", "data", "seed_places.csv")
 
 app = FastAPI(title="PaleoGeology API")
+
+# Add CORS middleware to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3002", 
+        "http://127.0.0.1:3002", 
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # In-memory summary cache
 _summary_cache: Dict[str, Dict[str, Any]] = {}

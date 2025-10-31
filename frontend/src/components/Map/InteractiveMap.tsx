@@ -1,11 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { PaleoSite, Coordinates } from '../../types';
 import { useMapState } from '../../hooks/useMapState';
 import { useSiteData } from '../../hooks/useSiteData';
 import { MapContainerSimple as MapContainer } from './MapContainerSimple';
 import { SidePanel } from './SidePanel';
+import { RadiusSelector } from './RadiusSelector';
 import { DEV_CONFIG, shouldShowDebugFeatures } from '../../config/dev';
-import { mockAPI } from '../../services/mockAPI';
+import { apiService } from '../../services/apiService';
 import { PLACES_DATA } from '../../data/seedPlaces';
 import './InteractiveMap.css';
 
@@ -34,6 +35,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [markerRecreationCount, setMarkerRecreationCount] = useState(0);
   const [searchResults, setSearchResults] = useState<PaleoSite[]>([]);
   const [allSites, setAllSites] = useState<PaleoSite[]>([]);
+  const [searchRadius, setSearchRadius] = useState<number>(100); // Default 100km radius
+  
+  // Use ref to always get current radius value (avoids closure issues)
+  const searchRadiusRef = useRef<number>(searchRadius);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    searchRadiusRef.current = searchRadius;
+  }, [searchRadius]);
 
   // Debug searchResults changes
   useEffect(() => {
@@ -98,47 +108,25 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     loadAllSites();
   }, []);
 
-  // Random site selection for POC location-based search
-  const getRandomSites = useCallback((clickedLocation: Coordinates, count: number = 5): PaleoSite[] => {
-    console.log('🎲 getRandomSites called with:', { clickedLocation, count, allSitesLength: allSites.length });
+  // API-based site search for location-based search
+  const searchSitesNearLocation = useCallback(async (clickedLocation: Coordinates, radiusKm?: number): Promise<PaleoSite[]> => {
+    // Use the current searchRadius state if no radius is provided
+    const actualRadius = radiusKm ?? searchRadius;
     
-    if (allSites.length === 0) {
-      console.warn('⚠️ No sites available for random selection - allSites is empty');
-      console.warn('⚠️ Trying to use PLACES_DATA directly as fallback...');
-      
-      // Fallback: use PLACES_DATA directly if allSites is empty
-      if (PLACES_DATA && PLACES_DATA.length > 0) {
-        const directSites = PLACES_DATA.map(place => ({
-          id: place.id,
-          name: place.name,
-          coordinates: { 
-            latitude: place.lat, 
-            longitude: place.lon 
-          },
-          description: place.known_type || 'Paleontological site'
-        }));
-        
-        const shuffled = [...directSites].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, Math.min(count, directSites.length));
-        
-        console.log('🎲 Using fallback - selected sites:', selected.map(s => s.name));
-        return selected;
-      }
-      
+    console.log('🔍 searchSitesNearLocation called with:', { clickedLocation, radiusKm, actualRadius });
+    console.log('🔍 Current searchRadius state:', searchRadius);
+    console.log('🔍 Using radius:', actualRadius);
+    
+    try {
+      const sites = await apiService.searchSites(clickedLocation, actualRadius);
+      console.log('🔍 API returned sites:', sites.length, sites.map(s => s.name));
+      return sites;
+    } catch (error) {
+      console.error('⚠️ API search failed, falling back to empty results:', error);
+      // Minimal fallback - let the user know something went wrong
       return [];
     }
-    
-    const shuffled = [...allSites].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, Math.min(count, allSites.length));
-    
-    console.log('🎲 Random sites selected:', selected.map(s => ({ name: s.name, lat: s.coordinates.latitude, lng: s.coordinates.longitude })));
-    
-    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
-      console.log(`🎲 Randomly selected ${selected.length} sites near:`, clickedLocation);
-    }
-    
-    return selected;
-  }, [allSites]);
+  }, [searchRadius]);
 
   // Comment out the real hook for now to debug
   /*
@@ -203,39 +191,53 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     setSidePanelOpen(true);
   }, []);
 
-  // Handle map click - POC location-based search
-  const handleMapClick = useCallback((coordinates: Coordinates) => {
-    console.log('🗺️ handleMapClick called with:', coordinates);
+  // Handle map click - Real location-based search with API
+  const handleMapClick = useCallback(async (coordinates: Coordinates) => {
+    const currentRadius = searchRadiusRef.current; // Always get current value from ref
     
     if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
       console.log('🗺️ Map clicked at:', coordinates);
+      console.log('🗺️ Current searchRadius:', currentRadius);
     }
     
-    // IMPORTANT: Alert lat/lng for debugging
-    alert(`Map clicked at:\nLatitude: ${coordinates.latitude}\nLongitude: ${coordinates.longitude}`);
+    // Alert lat/lng for debugging
+    alert(`Map clicked at:\nLatitude: ${coordinates.latitude}\nLongitude: ${coordinates.longitude}\nRadius: ${currentRadius}km`);
     
-    // POC: Randomly select a few sites and show them as markers on the map
-    const randomSites = getRandomSites(coordinates, 5);
-    console.log('🎯 Setting searchResults to:', randomSites.length, 'sites');
-    console.log('🎯 Site names:', randomSites.map(s => s.name));
-    
-    setSearchResults(randomSites);
-    
-    // Don't open side panel on map click - only show the markers
-    // Side panel opens when user clicks on a specific site marker
-    setSelectedSite(null);
-    setSidePanelOpen(false);
-    
-    // Always log this so user can see it's working
-    console.log('🎯 Location-based search activated! Showing site markers:', randomSites.map(s => s.name));
-    
-    if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
-      console.log('🎯 Location-based search: showing random sites:', randomSites.map(s => s.name));
+    try {
+      // Call API directly with current radius from ref
+      const sites = await apiService.searchSites(coordinates, currentRadius);
+      console.log('🎯 Setting searchResults to:', sites.length, 'sites');
+      console.log('🎯 Site names:', sites.map((s: PaleoSite) => s.name));
+      
+      setSearchResults(sites);
+      
+      // Don't open side panel on map click - only show the markers
+      // Side panel opens when user clicks on a specific site marker
+      setSelectedSite(null);
+      setSidePanelOpen(false);
+      
+      // Always log this so user can see it's working
+      console.log('🎯 Location-based search activated! Showing site markers:', sites.map((s: PaleoSite) => s.name));
+      
+      if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
+        console.log('🎯 Location-based search: showing nearby sites:', sites.map((s: PaleoSite) => s.name));
+      }
+    } catch (error) {
+      console.error('🚨 Map click search failed:', error);
+      // Keep existing results on error
     }
-  }, [getRandomSites]);
+  }, []); // Remove searchRadius dependency since we're using ref
 
   return (
     <div className={`interactive-map ${className}`}>
+      {/* Radius selector */}
+      <div className="radius-selector-container">
+        <RadiusSelector
+          selectedRadius={searchRadius}
+          onRadiusChange={setSearchRadius}
+        />
+      </div>
+
       {/* Main map container */}
       <div className="map-wrapper">
         <MapContainer
