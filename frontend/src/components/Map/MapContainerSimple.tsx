@@ -21,6 +21,7 @@ interface MapContainerSimpleProps {
   onMapMoveStart?: () => void;
   onMapMoveEnd?: () => void;
   onMarkerRecreation?: () => void;
+  onBoundsChange?: (bounds: { northeast: Coordinates; southwest: Coordinates }) => void;
 }
 
 export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
@@ -34,6 +35,7 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
   onMapMoveStart,
   onMapMoveEnd,
   onMarkerRecreation,
+  onBoundsChange,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,6 +72,62 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
       }).addTo(map);
 
       mapRef.current = map;
+
+      // Function to update bounds
+      const updateBounds = () => {
+        if (onBoundsChange && mapRef.current) {
+          const bounds = mapRef.current.getBounds();
+          const boundsData = {
+            northeast: {
+              latitude: bounds.getNorthEast().lat,
+              longitude: bounds.getNorthEast().lng,
+            },
+            southwest: {
+              latitude: bounds.getSouthWest().lat,
+              longitude: bounds.getSouthWest().lng,
+            }
+          };
+          onBoundsChange(boundsData);
+        }
+      };
+
+      // Add map event handlers
+      map.on('moveend', () => {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        
+        console.log('🗺️ Map moved - Center:', center, 'Zoom:', zoom);
+        
+        if (onMapViewChange) {
+          onMapViewChange(
+            { latitude: center.lat, longitude: center.lng },
+            zoom
+          );
+        }
+        
+        // Update bounds after move
+        updateBounds();
+        
+        if (onMapMoveEnd) {
+          onMapMoveEnd();
+        }
+      });
+
+      map.on('zoomend', () => {
+        console.log('🗺️ Map zoom changed');
+        updateBounds();
+      });
+
+      map.on('movestart', () => {
+        if (onMapMoveStart) {
+          onMapMoveStart();
+        }
+      });
+
+      // Initial bounds update
+      setTimeout(() => {
+        updateBounds();
+      }, 100);
 
       // Add map click handler
       if (onMapClick) {

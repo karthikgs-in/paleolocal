@@ -5,6 +5,7 @@ import { useSiteData } from '../../hooks/useSiteData';
 import { MapContainerSimple as MapContainer } from './MapContainerSimple';
 import { SidePanel } from './SidePanel';
 import { RadiusSelector } from './RadiusSelector';
+import { BoundingBoxDisplay } from './BoundingBoxDisplay';
 import { DEV_CONFIG, shouldShowDebugFeatures } from '../../config/dev';
 import { apiService } from '../../services/apiService';
 import { PLACES_DATA } from '../../data/seedPlaces';
@@ -36,6 +37,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [searchResults, setSearchResults] = useState<PaleoSite[]>([]);
   const [allSites, setAllSites] = useState<PaleoSite[]>([]);
   const [searchRadius, setSearchRadius] = useState<number>(100); // Default 100km radius
+  const [mapBounds, setMapBounds] = useState<{ northeast: Coordinates; southwest: Coordinates } | null>(null);
+  const [showBoundingBox, setShowBoundingBox] = useState<boolean>(true); // Show bounding box by default
   
   // Use ref to always get current radius value (avoids closure issues)
   const searchRadiusRef = useRef<number>(searchRadius);
@@ -180,6 +183,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     setView(center, zoom);
   }, [setView]);
 
+  // Handle bounds change from map
+  const handleBoundsChange = useCallback((bounds: { northeast: Coordinates; southwest: Coordinates }) => {
+    setMapBounds(bounds);
+    console.log('🗺️ Map bounds updated:', bounds);
+  }, []);
+
   // Handle site click
   const handleSiteClick = useCallback(async (site: PaleoSite) => {
     if (DEV_CONFIG.ENABLE_DEBUG_LOGGING) {
@@ -247,8 +256,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           onMapViewChange={handleMapViewChange}
           onSiteClick={handleSiteClick}
           onMapClick={handleMapClick}
+          onBoundsChange={handleBoundsChange}
           onMarkerRecreation={() => setMarkerRecreationCount(prev => prev + 1)}
           className="main-map"
+        />
+        
+        {/* POC: Bounding Box Display */}
+        <BoundingBoxDisplay
+          bounds={mapBounds || undefined}
+          center={mapView.center}
+          zoom={mapView.zoom}
+          visible={showBoundingBox}
         />
       </div>
 

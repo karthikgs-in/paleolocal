@@ -1,0 +1,148 @@
+.bounding-box-display {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #4a90e2;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 12px;
+  z-index: 1000;
+  max-width: 280px;
+  min-width: 250px;
+  backdrop-filter: blur(5px);
+}
+
+.bounding-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.bounding-box-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.zoom-level {
+  background: #4a90e2;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.coordinates-section {
+  margin-bottom: 12px;
+}
+
+.coordinate-group {
+  margin-bottom: 12px;
+}
+
+.coordinate-group h4 {
+  margin: 0 0 6px 0;
+  color: #555;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coordinate-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+  padding: 2px 0;
+}
+
+.coordinate-row .label {
+  color: #666;
+  font-weight: 500;
+  min-width: 40px;
+}
+
+.coordinate-row .value {
+  color: #333;
+  font-weight: 600;
+  background: #f8f9fa;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid #e9ecef;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+.actions-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.copy-bounds-btn {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.copy-bounds-btn:hover {
+  background: #357abd;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bounding-box-display {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    right: auto;
+    top: auto;
+    max-width: calc(100vw - 20px);
+    min-width: auto;
+    width: auto;
+  }
+  
+  .coordinate-row {
+    font-size: 11px;
+  }
+  
+  .bounding-box-header h3 {
+    font-size: 13px;
+  }
+}
+
+/* Compact mode for smaller screens */
+@media (max-width: 480px) {
+  .bounding-box-display {
+    font-size: 10px;
+    padding: 8px;
+  }
+  
+  .coordinate-row .value {
+    padding: 1px 4px;
+    font-size: 9px;
+  }
+  
+  .copy-bounds-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+}
