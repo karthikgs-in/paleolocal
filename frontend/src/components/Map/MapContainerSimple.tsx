@@ -23,7 +23,7 @@ interface MapContainerSimpleProps {
   onMarkerRecreation?: () => void;
 }
 
-export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
+const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
   mapView,
   sites,
   selectedSiteId,
@@ -39,18 +39,12 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
 
-  console.log('🗺️ MapContainerSimple render started');
-
   // Initialize map - SIMPLIFIED VERSION
   useEffect(() => {
-    console.log('🗺️ Map initialization useEffect triggered');
     
     if (!containerRef.current || mapRef.current) {
-      console.log('🗺️ Skipping map init - container missing or map already exists');
       return;
     }
-
-    console.log('🗺️ Creating NEW map instance...');
 
     try {
       // Create map instance
@@ -60,8 +54,6 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
         zoomControl: true,
         attributionControl: true,
       });
-
-      console.log('🗺️ Map instance created, adding tile layer...');
 
       // Add OpenStreetMap tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -74,9 +66,6 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
       // Add map click handler
       if (onMapClick) {
         map.on('click', (e: L.LeafletMouseEvent) => {
-          console.log('🗺️ Map clicked in MapContainerSimple:', e.latlng);
-          console.log('🗺️ Raw Leaflet coordinates:', e.latlng.lat, e.latlng.lng);
-          
           const coordinates = {
             latitude: e.latlng.lat,
             longitude: e.latlng.lng
@@ -84,20 +73,14 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
           
           onMapClick(coordinates);
         });
-        console.log('🗺️ Map click handler attached');
-      } else {
-        console.log('🗺️ No onMapClick handler provided');
       }
 
-      console.log('🗺️ ✅ Simple map setup complete!');
-
     } catch (error) {
-      console.error('🗺️ ❌ Error creating map:', error);
+      console.error('Error creating map:', error);
     }
 
     // Cleanup function
     return () => {
-      console.log('🗺️ 🧹 CLEANING UP MAP INSTANCE');
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -108,10 +91,8 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
 
   // Add markers - SIMPLIFIED VERSION
   useEffect(() => {
-    console.log('🗺️ Adding markers, sites count:', sites.length);
     
     if (!mapRef.current || sites.length === 0) {
-      console.log('🗺️ Skipping markers - no map or no sites');
       return;
     }
 
@@ -126,7 +107,6 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
 
       // Add new markers
       sites.forEach(site => {
-        console.log('🗺️ Adding marker for:', site.name);
         
         const marker = L.marker([site.coordinates.latitude, site.coordinates.longitude]);
         marker.bindPopup(site.name);
@@ -142,17 +122,14 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
         markersRef.current.set(site.id, marker);
       });
 
-      console.log('🗺️ ✅ Markers added successfully');
     } catch (error) {
-      console.error('🗺️ ❌ Error adding markers:', error);
+      console.error('Error adding markers:', error);
     }
   }, [sites]);
 
-  console.log('🗺️ MapContainerSimple rendering div');
-
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className={`map-container-simple ${className}`}
       style={{ 
         width: '100%', 
@@ -163,3 +140,5 @@ export const MapContainerSimple: React.FC<MapContainerSimpleProps> = ({
     />
   );
 };
+
+export { MapContainerSimple };

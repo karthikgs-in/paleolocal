@@ -39,6 +39,37 @@ export interface SearchResponse {
   query?: string;
 }
 
+// Chat-related types
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  siteId?: string;
+}
+
+export interface ChatSession {
+  id: string;
+  userId: string;
+  siteId: string;
+  messages: ChatMessage[];
+  lastActivity: Date;
+}
+
+export interface ChatRequest {
+  message: string;
+  userId: string;
+  siteId?: string;
+  sessionId?: string;
+}
+
+export interface ChatResponse {
+  message: string;
+  sessionId: string;
+  messageId: string;
+  sources?: string[];
+}
+
 // Map view state for Leaflet integration
 export interface MapViewState {
   center: Coordinates;

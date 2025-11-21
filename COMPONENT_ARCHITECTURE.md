@@ -16,15 +16,21 @@ graph TD
     %% Interactive Map Components
     InteractiveMap --> MapContainer["🌍 MapContainerSimple.tsx<br/>Leaflet Map Container"]
     InteractiveMap --> SidePanel["📋 SidePanel.tsx<br/>Site Information Panel"]
+    InteractiveMap --> ChatInterface["💬 ChatInterface.tsx<br/>AI-Powered Chat System"]
     InteractiveMap --> DebugPanel["🐛 Debug Panel<br/>(conditionally shown)"]
     
     %% Map Container Sub-components
     MapContainer --> SiteMarker["📍 SiteMarker.tsx<br/>Individual Site Markers"]
     MapContainer --> LeafletMap["🗺️ Leaflet Map Instance<br/>(L.Map)"]
     
-    %% Side Panel Components (placeholder structure)
-    SidePanel --> SiteDetails["📄 SiteDetails.tsx<br/>(To be implemented)"]
-    SidePanel --> SearchResults["🔍 SearchResults.tsx<br/>(To be implemented)"]
+    %% Side Panel Components
+    SidePanel --> SiteDetails["📄 SiteDetails.tsx<br/>Site Information Display"]
+    SidePanel --> SearchResults["🔍 SearchResults.tsx<br/>Search Interface"]
+    SidePanel --> DockedChat["💬 Docked Chat<br/>Site-specific AI Chat"]
+    
+    %% Chat Interface Components
+    ChatInterface --> FloatingChat["🎈 Floating Mode<br/>Movable & Resizable"]
+    ChatInterface --> ChatWindow["💭 Chat Window<br/>Message Interface"]
     
     %% Test Page Components
     TestPage --> MarkerTest["🎯 MarkerTest.tsx<br/>Marker Testing Component"]
@@ -62,7 +68,16 @@ InteractiveMap.tsx
 ├── Local State Management:
 │   ├── selectedSite: PaleoSite | null
 │   ├── sidePanelOpen: boolean
+│   ├── topSite: PaleoSite | null (default site for chat)
+│   ├── chatDocked: boolean (floating vs docked mode)
+│   ├── chatPosition: {x: number, y: number}
 │   └── markerRecreationCount: number
+│
+├── Chat Integration:
+│   ├── Dual-mode chat system (floating/docked)
+│   ├── Site-specific context switching
+│   ├── Smart docking when site panel opens
+│   └── Movable/resizable in floating mode
 │
 ├── Data Sources (Current):
 │   └── Hardcoded Mock Sites (3 sites):
@@ -72,12 +87,14 @@ InteractiveMap.tsx
 │
 ├── Event Flow:
 │   ├── handleMapViewChange() → useMapState.setView()
-│   ├── handleSiteClick() → setSelectedSite() + setSidePanelOpen(true)
-│   └── handleMapClick() → setSidePanelOpen(false) + setSelectedSite(null)
+│   ├── handleSiteClick() → setSelectedSite() + setSidePanelOpen(true) + dockChat()
+│   ├── handleMapClick() → setSidePanelOpen(false) + setSelectedSite(null)
+│   └── handleChatToggle() → toggle between floating/docked modes
 │
 └── Child Component Data Passing:
     ├── MapContainer ← {mapView, sites, selectedSiteId, handlers}
-    └── SidePanel ← {isOpen, selectedSite, searchResults, handlers}
+    ├── SidePanel ← {isOpen, selectedSite, searchResults, chatComponent, handlers}
+    └── ChatInterface ← {topSite, docked, position, size, handlers}
 ```
 
 ### **3. Map Container Data Flow**
@@ -105,7 +122,43 @@ MapContainerSimple.tsx
     └── marker click → onSiteClick(site)
 ```
 
-### **4. Hook-Based State Management**
+### **4. Chat Interface Architecture**
+```
+ChatInterface.tsx
+├── Dual-Mode Rendering:
+│   ├── Floating Mode:
+│   │   ├── Draggable window with header
+│   │   ├── Resizable with drag handles
+│   │   │   └── Position: {x: number, y: number}
+│   │   │   └── Size: {width: number, height: number}
+│   │   └── Z-index management for overlay
+│   │
+│   └── Docked Mode:
+│       ├── Integrated into SidePanel
+│       ├── Fixed dimensions
+│       └── Responsive to panel resize
+│
+├── State Management:
+│   ├── messages: ChatMessage[] (conversation history)
+│   ├── currentMessage: string (input field)
+│   ├── isLoading: boolean (API call state)
+│   ├── position: Coordinates (floating mode)
+│   └── size: Dimensions (floating mode)
+│
+├── AI Integration:
+│   ├── Backend API: /api/chat & /api/chat/site/{id}
+│   ├── Context Switching: Adapts to selected site
+│   ├── Conversation History: Maintains context
+│   └── Error Handling: Network and API failures
+│
+└── Interaction Handlers:
+    ├── onDrag() → Update position state
+    ├── onResize() → Update size state
+    ├── onSendMessage() → API call + update messages
+    └── onToggleMode() → Switch floating/docked
+```
+
+### **5. Hook-Based State Management**
 ```
 useMapState Hook
 ├── State: mapView {center: Coordinates, zoom: number}
@@ -119,7 +172,7 @@ useSiteData Hook (Currently Commented Out)
 └── Purpose: Backend communication for site data
 ```
 
-### **5. Mock API Infrastructure (Ready but Disconnected)**
+### **6. Mock API Infrastructure (Ready but Disconnected)**
 ```
 seedPlaces.ts
 ├── SEED_PLACES_DATA: Raw CSV string (20 sites)

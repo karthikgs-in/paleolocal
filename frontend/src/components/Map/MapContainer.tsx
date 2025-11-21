@@ -43,13 +43,13 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
   // Create site icon - use the simplest possible approach that works
   const createSiteIcon = useCallback((isSelected: boolean = false) => {
-    console.log('🗺️ Creating site icon, selected:', isSelected);
+    // console.log('🗺️ Creating site icon, selected:', isSelected);
     
     // Use the most basic approach possible - single color, simple styles
     const color = isSelected ? 'lime' : 'red';
     const size = 25; // Fixed size for simplicity
     
-    console.log('🗺️ Marker style:', { color, size });
+    // console.log('🗺️ Marker style:', { color, size });
     
     return L.divIcon({
       className: 'simple-marker',
@@ -61,18 +61,16 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
   // Initialize map
   useEffect(() => {
-    console.log('🗺️ Map initialization useEffect triggered');
-    console.log('🗺️ containerRef.current:', !!containerRef.current);
-    console.log('🗺️ mapRef.current:', !!mapRef.current);
-    
+    // console.log('🗺️ Map initialization useEffect triggered');
+    // console.log('🗺️ containerRef.current:', !!containerRef.current);
+    // console.log('🗺️ mapRef.current:', !!mapRef.current);
+
     if (!containerRef.current || mapRef.current) {
-      console.log('🗺️ Skipping map init - container missing or map already exists');
+      // console.log('🗺️ Skipping map init - container missing or map already exists');
       return;
     }
 
-    console.log('🗺️ Creating NEW map instance...');
-
-    // Create map instance
+    // console.log('🗺️ Creating NEW map instance...');    // Create map instance
     const map = L.map(containerRef.current, {
       center: [mapView.center.latitude, mapView.center.longitude],
       zoom: mapView.zoom,
@@ -141,7 +139,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
     mapRef.current = map;
 
-    console.log('🗺️ ✅ Map setup complete!');
+    // console.log('🗺️ ✅ Map setup complete!');
 
     // Add window focus handler to debug visibility issues
     const handleWindowFocus = () => {

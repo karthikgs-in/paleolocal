@@ -7,16 +7,16 @@ export const DEV_CONFIG = {
   SHOW_MARKER_TEST: false,
   
   // Show debug panels on map
-  SHOW_DEBUG_PANELS: true,
+  SHOW_DEBUG_PANELS: false,
   
   // Enable console logging
-  ENABLE_DEBUG_LOGGING: true,
+  ENABLE_DEBUG_LOGGING: false,
   
   // Mock data settings
   USE_MOCK_DATA: true,
   
   // API settings
-  API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8003',
 } as const;
 
 // Helper function to check if we're in development mode

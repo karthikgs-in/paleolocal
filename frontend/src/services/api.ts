@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { PaleoSite, SearchRequest, SearchResponse, ApiError } from '../types';
 
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8003';
 
 // Create axios instance with base configuration
 const apiClient: AxiosInstance = axios.create({

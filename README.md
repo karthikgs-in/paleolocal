@@ -1,7 +1,7 @@
 # 🏺 PaleoLocal — Paleogeology Explorer
 
-**PaleoLocal** is a full-stack application for discovering and exploring paleogeologic sites.  
-It combines an interactive React frontend with a powerful backend API using **FastAPI**, **Chroma**, **SentenceTransformers**, and **Gemini**.
+**PaleoLocal** is a full-stack application for discovering and exploring paleogeologic sites with an intelligent AI-powered chat interface.  
+It combines an interactive React frontend with a powerful backend API using **FastAPI**, **Chroma**, **SentenceTransformers**, and **Gemini** to provide contextual geological insights.
 
 ## 🖼️ Application Preview
 
@@ -15,16 +15,22 @@ It combines an interactive React frontend with a powerful backend API using **Fa
 
 ### 🖥️ Frontend (React + TypeScript)
 - 🗺️ **Interactive Leaflet Map** with paleontological site markers
+- 💬 **Smart Chat Interface** with dual-mode functionality:
+  - **Floating Mode**: Movable and resizable chat window for flexible exploration
+  - **Docked Mode**: Seamlessly integrates into the site panel for focused research
+  - **Site-Specific Context**: Automatically adapts to selected geological sites
+  - **AI-Powered Responses**: Get detailed geological insights powered by Gemini LLM
 - 📋 **Dynamic Side Panel** showing detailed site information and coordinates  
 - 🔍 **Tabbed Interface** for site details and search results
-- 📍 **Click-to-Explore** marker interactions with smooth animations
+- 📍 **Click-to-Explore** marker interactions with smooth animations and smart map centering
 - 📱 **Responsive Design** optimized for desktop and mobile exploration
 
 ### 🔧 Backend API (FastAPI + AI)
 - 🌍 Search nearby paleogeologic or geoanthropological sites by latitude, longitude, and radius.  
+- 💬 **Interactive Chat API** for real-time geological consultations and site-specific Q&A
 - 🧠 Retrieve semantically relevant text chunks from local sources using **ChromaDB**.  
 - 🔎 Embed site content locally via **SentenceTransformers**.  
-- 💬 Summarize retrieved evidence with **Gemini 2,0 Flash**.  
+- 💬 Generate contextual summaries and chat responses with **Gemini 2.0 Flash**.  
 - ⚡ FastAPI endpoints for integration with any frontend or research pipeline.  
 
 ---
@@ -145,7 +151,7 @@ Visit:
 
 ---
 
-## 🧠 Key Endpoints
+## 📡 API Endpoints
 
 | Endpoint | Method | Description |
 |-----------|--------|--------------|
@@ -154,6 +160,36 @@ Visit:
 | `/api/place/{id}` | GET | Site metadata + cached summary |
 | `/api/place/{id}/generate` | POST | Generate summary with RAG + Gemini |
 | `/api/place/{id}/generate?force=true` | POST | Force new generation |
+| `/api/chat` | POST | Interactive chat with geological context |
+| `/api/chat/site/{id}` | POST | Site-specific chat consultation |
+
+---
+
+## 💬 Chat Interface Guide
+
+### **Getting Started with the Chat**
+1. **Initial State**: Chat appears as a floating window when the map loads with the top site highlighted
+2. **Site Selection**: Click any site marker to center the map and open the detailed side panel
+3. **Auto-Docking**: Chat automatically docks into the bottom of the side panel for focused exploration
+4. **Context Switching**: Chat conversation adapts to the selected site's geological context
+
+### **Chat Modes**
+- **🎈 Floating Mode**: 
+  - Freely movable by dragging the header
+  - Resizable by dragging the bottom-right corner
+  - Perfect for general geological questions
+- **🔗 Docked Mode**:
+  - Integrated into the site panel
+  - Optimized for site-specific research
+  - Maintains conversation context
+
+### **Interaction Tips**
+- Ask specific questions about geological formations, fossil types, or site characteristics
+- Request comparisons between different paleontological periods
+- Get contextual information about the currently selected site
+- Use the chat for educational insights about paleontology and geology
+
+**📖 For detailed usage instructions, see [Chat Interface Guide](docs/CHAT_INTERFACE_GUIDE.md)**
 
 ---
 
@@ -170,8 +206,21 @@ Visit:
 ## 🧪 Quick Test
 
 ```bash
-curl "http://127.0.0.1:8000/api/search?lat=12.97&lon=77.59&radius_km=100"
-curl -X POST "http://127.0.0.1:8000/api/place/1/generate?force=true"
+# Search for nearby sites
+curl "http://127.0.0.1:8003/api/search?lat=12.97&lon=77.59&radius_km=100"
+
+# Generate site summary
+curl -X POST "http://127.0.0.1:8003/api/place/1/generate?force=true"
+
+# Test chat interface
+curl -X POST "http://127.0.0.1:8003/api/chat" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What can you tell me about paleontology?"}'
+
+# Site-specific chat
+curl -X POST "http://127.0.0.1:8003/api/chat/site/1" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What geological features make this site interesting?"}'
 ```
 
 ---
@@ -193,10 +242,14 @@ google-generativeai
 
 ---
 
-## 🧑‍💻 Author
+## 🧑‍💻 Authors
+
+**Manickavasagam Sundaram**  
+Software Engineer | Architect
+[GitHub](https://github.com/manick02) • [LinkedIn](https://www.linkedin.com/in/manickavasagams/)
 
 **Karthik G. Shanmugasundaram**  
-M.Tech (AI & DS), SRM Institute of Science and Technology  
+AI architect | M.Tech (AI & DS) 2025, SRM Institute of Science and Technology  
 [GitHub](https://github.com/karthikgs-in) • [LinkedIn](https://linkedin.com/in/karthikgs-in)
 
 ---

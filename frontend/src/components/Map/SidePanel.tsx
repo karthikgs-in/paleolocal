@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { PaleoSite } from '../../types';
 import { SiteInfo } from './SiteInfo';
+import ChatInterface from '../Chat/ChatInterface';
 import './SidePanel.css';
 
 interface SidePanelProps {
@@ -12,6 +13,10 @@ interface SidePanelProps {
   error?: string | null;
   onSiteSelect?: (site: PaleoSite) => void;
   onSourceClick?: (source: string) => void;
+  // Chat props
+  chatOpen?: boolean;
+  onChatToggle?: () => void;
+  chatComponent?: React.ReactNode | null;
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({
@@ -23,10 +28,40 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   error = null,
   onSiteSelect,
   onSourceClick,
+  // Chat props
+  chatOpen = false,
+  onChatToggle,
+  chatComponent = null,
 }) => {
-  console.log('📋 SidePanel render:', { isOpen, selectedSite: selectedSite?.name, searchResultsCount: searchResults.length });
+  // console.log('📋 SidePanel render:', { isOpen, selectedSite: selectedSite?.name, searchResultsCount: searchResults.length });
   
   const [activeTab, setActiveTab] = useState<'details' | 'search'>('details');
+  const [panelWidth, setPanelWidth] = useState(400);
+  const [isResizing, setIsResizing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const startXRef = useRef(0);
+  const startWidthRef = useRef(0);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = panelWidth;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - startXRef.current;
+      const newWidth = Math.max(300, Math.min(800, startWidthRef.current - deltaX));
+      setPanelWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [panelWidth]);
 
   const handleSiteSelect = useCallback((site: PaleoSite) => {
     onSiteSelect?.(site);
@@ -141,10 +176,24 @@ export const SidePanel: React.FC<SidePanelProps> = ({
       }
 
       return (
-        <SiteInfo 
-          site={selectedSite}
-          onSourceClick={onSourceClick}
-        />
+        <>
+          <SiteInfo 
+            site={selectedSite}
+            onSourceClick={onSourceClick}
+          />
+          
+          {/* Chat Interface docked in side panel */}
+          {chatOpen && chatComponent && (
+            <div className="side-panel__chat-section">
+              <div className="side-panel__chat-header">
+                <h3>Chat about {selectedSite.name}</h3>
+              </div>
+              <div className="side-panel__chat-container">
+                {chatComponent}
+              </div>
+            </div>
+          )}
+        </>
       );
     }
 
@@ -157,7 +206,18 @@ export const SidePanel: React.FC<SidePanelProps> = ({
 
   return (
     <div className="side-panel-overlay" onClick={handleOverlayClick}>
-      <div className="side-panel">
+      <div 
+        ref={panelRef}
+        className={`side-panel ${isResizing ? 'side-panel--resizing' : ''}`}
+        style={{ width: `${panelWidth}px` }}
+      >
+        {/* Resize handle */}
+        <div 
+          className="side-panel__resize-handle"
+          onMouseDown={handleMouseDown}
+          title="Drag to resize panel"
+        />
+        
         <div className="panel-header">
           <div className="tab-buttons">
             <button
@@ -179,9 +239,20 @@ export const SidePanel: React.FC<SidePanelProps> = ({
               )}
             </button>
           </div>
-          <button className="close-button" onClick={onClose} aria-label="Close panel">
-            ✕
-          </button>
+          <div className="panel-header-controls">
+            {selectedSite && onChatToggle && (
+              <button 
+                className={`chat-toggle-btn ${chatOpen ? 'chat-toggle-btn--active' : ''}`}
+                onClick={onChatToggle}
+                title={`${chatOpen ? 'Hide' : 'Show'} chat for ${selectedSite.name}`}
+              >
+                💬
+              </button>
+            )}
+            <button className="close-button" onClick={onClose} aria-label="Close panel">
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="panel-content">
